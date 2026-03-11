@@ -6,7 +6,7 @@ export interface Team {
 
 export interface Player {
   id: string;
-  number: number;
+  number?: number;
   name: string;
   teamId: string;
   position: 'starter' | 'substitute' | 'coach';

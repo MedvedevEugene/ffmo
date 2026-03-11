@@ -139,7 +139,9 @@ const TeamRoster: React.FC<Props> = ({
       className="player-card"
       onClick={() => handlePlayerClick(player)}
     >
-      <div className="player-number">{player.number}</div>
+      {player.position !== 'coach' && (
+        <div className="player-number">{player.number}</div>
+      )}
       <div className="player-name">{player.name}</div>
       {getPlayerBadge(player)}
     </div>

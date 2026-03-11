@@ -26,10 +26,10 @@ function App() {
         position: 'substitute'
       });
     }
-    // Тренеры
-    players.push({ id: uuidv4(), number: 0, name: 'Главный тренер', teamId, position: 'coach' });
-    players.push({ id: uuidv4(), number: 0, name: 'Ассистент тренера', teamId, position: 'coach' });
-    players.push({ id: uuidv4(), number: 0, name: 'Тренер по физподготовке', teamId, position: 'coach' });
+    // Тренеры (без номеров)
+    players.push({ id: uuidv4(), name: 'Главный тренер', teamId, position: 'coach' });
+    players.push({ id: uuidv4(), name: 'Ассистент тренера', teamId, position: 'coach' });
+    players.push({ id: uuidv4(), name: 'Тренер по физподготовке', teamId, position: 'coach' });
     return players;
   };
 
