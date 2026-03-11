@@ -51,6 +51,18 @@ const redCardReasons = [
   { value: 'other', label: 'Другое' }
 ];
 
+// Только нужные типы событий для меню
+const allowedEventTypes: EventType[] = [
+  'goal',
+  'own_goal',
+  'penalty_goal',
+  'missed_penalty',
+  'yellow_card',
+  'red_card',
+  'substitution',
+  'injury'
+];
+
 const TeamRoster: React.FC<Props> = ({
   teamName,
   players,
@@ -133,8 +145,7 @@ const TeamRoster: React.FC<Props> = ({
     </div>
   );
 
-  // Фильтруем типы событий, убирая injury
-  const availableEventTypes = Object.entries(eventTypeLabels).filter(([key]) => key !== 'injury');
+  const availableEventTypes = allowedEventTypes.map(type => [type, eventTypeLabels[type]] as [EventType, string]);
 
   return (
     <div className="team-roster">
@@ -227,6 +238,18 @@ const TeamRoster: React.FC<Props> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Подробное описание"
+                />
+              </div>
+            )}
+
+            {eventType === 'injury' && (
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Причина травмы</label>
+                <input
+                  type="text"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Описание травмы или причины"
                 />
               </div>
             )}
