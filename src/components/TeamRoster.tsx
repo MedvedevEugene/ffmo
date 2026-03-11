@@ -11,7 +11,8 @@ interface Props {
     teamId: string,
     description?: string,
     yellowCardReason?: string,
-    redCardReason?: string
+    redCardReason?: string,
+    additionalPlayerId?: string
   ) => void;
   getPlayerEvents: (playerId: string) => MatchEvent[];
   getEventTypeLabel: (type: EventType) => string;
@@ -64,6 +65,7 @@ const TeamRoster: React.FC<Props> = ({
   const [yellowCardReason, setYellowCardReason] = useState<string>('');
   const [redCardReason, setRedCardReason] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const [substitutePlayerId, setSubstitutePlayerId] = useState<string>('');
 
   const starters = players.filter(p => p.position === 'starter');
   const substitutes = players.filter(p => p.position === 'substitute');
@@ -78,6 +80,8 @@ const TeamRoster: React.FC<Props> = ({
   const handleAddEvent = () => {
     if (!selectedPlayer || !minute) return;
 
+    const additionalPlayerId = eventType === 'substitution' ? substitutePlayerId : undefined;
+
     onAddEvent(
       eventType,
       minute,
@@ -85,7 +89,8 @@ const TeamRoster: React.FC<Props> = ({
       selectedPlayer.teamId,
       description || undefined,
       yellowCardReason || undefined,
-      redCardReason || undefined
+      redCardReason || undefined,
+      additionalPlayerId
     );
 
     resetForm();
@@ -98,6 +103,7 @@ const TeamRoster: React.FC<Props> = ({
     setYellowCardReason('');
     setRedCardReason('');
     setDescription('');
+    setSubstitutePlayerId('');
   };
 
   const getPlayerBadge = (player: Player) => {
@@ -126,6 +132,9 @@ const TeamRoster: React.FC<Props> = ({
       {getPlayerBadge(player)}
     </div>
   );
+
+  // Фильтруем типы событий, убирая injury
+  const availableEventTypes = Object.entries(eventTypeLabels).filter(([key]) => key !== 'injury');
 
   return (
     <div className="team-roster">
@@ -163,7 +172,7 @@ const TeamRoster: React.FC<Props> = ({
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value as EventType)}
               >
-                {Object.entries(eventTypeLabels).map(([key, label]) => (
+                {availableEventTypes.map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
                 ))}
               </select>
@@ -196,43 +205,49 @@ const TeamRoster: React.FC<Props> = ({
             )}
 
             {eventType === 'red_card' && (
-              <>
-                <div className="form-group">
-                  <label>Причина КК</label>
-                  <select
-                    value={redCardReason}
-                    onChange={(e) => setRedCardReason(e.target.value)}
-                  >
-                    <option value="">Выберите причину</option>
-                    {redCardReasons.map(reason => (
-                      <option key={reason.value} value={reason.value}>{reason.label}</option>
-                    ))}
-                  </select>
-                </div>
-                {redCardReason === 'other' && (
-                  <div className="form-group">
-                    <label>Описание</label>
-                    <input
-                      type="text"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Подробное описание"
-                    />
-                  </div>
-                )}
-              </>
+              <div className="form-group">
+                <label>Причина КК</label>
+                <select
+                  value={redCardReason}
+                  onChange={(e) => setRedCardReason(e.target.value)}
+                >
+                  <option value="">Выберите причину</option>
+                  {redCardReasons.map(reason => (
+                    <option key={reason.value} value={reason.value}>{reason.label}</option>
+                  ))}
+                </select>
+              </div>
             )}
 
-            {(eventType === 'goal' || eventType === 'penalty_goal' || eventType === 'missed_penalty' || eventType === 'own_goal') && (
+            {eventType === 'red_card' && redCardReason === 'other' && (
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Описание происшедшего</label>
+                <input
+                  type="text"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Подробное описание"
+                />
+              </div>
+            )}
+
+            {eventType === 'substitution' && (
               <div className="form-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={!!description}
-                    onChange={(e) => setDescription(e.target.checked ? 'Дополнительное описание' : '')}
-                  />
-                  {' '}Добавить описание
-                </label>
+                <label>Заменяемый игрок</label>
+                <select
+                  value={substitutePlayerId}
+                  onChange={(e) => setSubstitutePlayerId(e.target.value)}
+                >
+                  <option value="">Выберите игрока</option>
+                  {players
+                    .filter(p => p.id !== selectedPlayer?.id)
+                    .map(player => (
+                      <option key={player.id} value={player.id}>
+                        {player.number}. {player.name}
+                      </option>
+                    ))
+                  }
+                </select>
               </div>
             )}
 

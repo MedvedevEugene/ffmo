@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Match, MatchEvent, EventType, Player } from './types';
 import TeamRoster from './components/TeamRoster';
-import Statistics from './components/Statistics';
 import { v4 as uuidv4 } from 'uuid';
 
 function App() {
@@ -66,7 +65,8 @@ function App() {
     teamId: string,
     description?: string,
     yellowCardReason?: string,
-    redCardReason?: string
+    redCardReason?: string,
+    additionalPlayerId?: string
   ) => {
     const newEvent: MatchEvent = {
       id: uuidv4(),
@@ -76,7 +76,8 @@ function App() {
       playerId,
       description,
       ...(yellowCardReason && { yellowCardReason: yellowCardReason as any }),
-      ...(redCardReason && { redCardReason: redCardReason as any })
+      ...(redCardReason && { redCardReason: redCardReason as any }),
+      ...(additionalPlayerId && { additionalPlayerId })
     };
     setMatch(prev => ({
       ...prev,
@@ -93,13 +94,6 @@ function App() {
     link.download = `protocol-${match.id}.json`;
     link.click();
     URL.revokeObjectURL(url);
-  };
-
-  const getPlayerName = (playerId?: string) => {
-    if (!playerId) return '';
-    const allPlayers = [...match.homeTeam.players, ...match.awayTeam.players];
-    const player = allPlayers.find(p => p.id === playerId);
-    return player ? `${player.number}. ${player.name}` : '';
   };
 
   const getPlayerEvents = useCallback((playerId: string) => {
@@ -174,11 +168,6 @@ function App() {
           getEventTypeLabel={getEventTypeLabel}
         />
       </div>
-
-      <Statistics
-        match={match}
-        getPlayerName={getPlayerName}
-      />
 
       <div className="actions">
         <button className="btn btn-primary" onClick={exportJSON}>
