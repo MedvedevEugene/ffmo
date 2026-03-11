@@ -73,7 +73,7 @@ const TeamRoster: React.FC<Props> = ({
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [eventType, setEventType] = useState<EventType>('goal');
-  const [minute, setMinute] = useState<number>(0);
+  const [minute, setMinute] = useState<number | null>(null);
   const [yellowCardReason, setYellowCardReason] = useState<string>('');
   const [redCardReason, setRedCardReason] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -90,7 +90,7 @@ const TeamRoster: React.FC<Props> = ({
   };
 
   const handleAddEvent = () => {
-    if (!selectedPlayer || !minute) return;
+    if (!selectedPlayer || minute === null) return;
 
     const additionalPlayerId = eventType === 'substitution' ? substitutePlayerId : undefined;
 
@@ -111,7 +111,7 @@ const TeamRoster: React.FC<Props> = ({
 
   const resetForm = () => {
     setEventType('goal');
-    setMinute(0);
+    setMinute(null);
     setYellowCardReason('');
     setRedCardReason('');
     setDescription('');
@@ -197,8 +197,8 @@ const TeamRoster: React.FC<Props> = ({
                 type="number"
                 min="0"
                 max="120"
-                value={minute}
-                onChange={(e) => setMinute(parseInt(e.target.value) || 0)}
+                value={minute === null ? '' : minute}
+                onChange={(e) => setMinute(e.target.value === '' ? null : Number(e.target.value))}
               />
             </div>
 
