@@ -1,16 +1,53 @@
-import { useState } from 'react';
-import { Match, ProtocolForm, MatchEvent, EventType, Team, Referee } from './types';
+import { useState, useCallback } from 'react';
+import { Match, ProtocolForm, MatchEvent, EventType, Team, Referee, Player } from './types';
 import ProtocolFormComponent from './components/ProtocolForm';
 import EventsTable from './components/EventsTable';
 import Statistics from './components/Statistics';
 import { v4 as uuidv4 } from 'uuid';
 
 function App() {
+  const createTeamPlayers = (teamId: string): Player[] => {
+    const players: Player[] = [];
+    // Основные (1-11)
+    for (let i = 1; i <= 11; i++) {
+      players.push({
+        id: uuidv4(),
+        number: i,
+        name: `Игрок ${i}`,
+        teamId,
+        position: 'starter'
+      });
+    }
+    // Запасные (12-18)
+    for (let i = 12; i <= 18; i++) {
+      players.push({
+        id: uuidv4(),
+        number: i,
+        name: `Запасной ${i}`,
+        teamId,
+        position: 'substitute'
+      });
+    }
+    // Тренеры
+    players.push({ id: uuidv4(), number: 0, name: 'Главный тренер', teamId, position: 'coach' });
+    players.push({ id: uuidv4(), number: 0, name: 'Ассистент тренера', teamId, position: 'coach' });
+    players.push({ id: uuidv4(), number: 0, name: 'Тренер по физподготовке', teamId, position: 'coach' });
+    return players;
+  };
+
   const [match, setMatch] = useState<Match>({
     id: uuidv4(),
     date: new Date().toISOString().split('T')[0],
-    homeTeam: { id: uuidv4(), name: '', players: [] },
-    awayTeam: { id: uuidv4(), name: '', players: [] },
+    homeTeam: {
+      id: uuidv4(),
+      name: 'Команда А',
+      players: createTeamPlayers(uuidv4())
+    },
+    awayTeam: {
+      id: uuidv4(),
+      name: 'Команда Б',
+      players: createTeamPlayers(uuidv4())
+    },
     referees: [
       { id: uuidv4(), role: 'main', name: '' },
       { id: uuidv4(), role: 'assistant', name: '' },
@@ -53,7 +90,8 @@ function App() {
         id: uuidv4(),
         number: index + 1,
         name: name.trim(),
-        teamId: match.homeTeam.id
+        teamId: match.homeTeam.id,
+        position: index < 11 ? 'starter' : 'substitute'
       }))
     };
 
@@ -64,7 +102,8 @@ function App() {
         id: uuidv4(),
         number: index + 1,
         name: name.trim(),
-        teamId: match.awayTeam.id
+        teamId: match.awayTeam.id,
+        position: index < 11 ? 'starter' : 'substitute'
       }))
     };
 
@@ -87,7 +126,18 @@ function App() {
     }));
   };
 
-  const addEvent = (type: EventType, minute: number, teamId?: string, playerId?: string, description?: string, additionalPlayerId?: string, isOwnGoal?: boolean, isPenalty?: boolean) => {
+  const addEvent = useCallback((
+    type: EventType,
+    minute: number,
+    teamId?: string,
+    playerId?: string,
+    description?: string,
+    additionalPlayerId?: string,
+    isOwnGoal?: boolean,
+    isPenalty?: boolean,
+    yellowCardReason?: string,
+    redCardReason?: string
+  ) => {
     const newEvent: MatchEvent = {
       id: uuidv4(),
       type,
@@ -97,13 +147,15 @@ function App() {
       description,
       additionalPlayerId,
       isOwnGoal,
-      isPenalty
+      isPenalty,
+      ...(yellowCardReason && { yellowCardReason: yellowCardReason as any }),
+      ...(redCardReason && { redCardReason: redCardReason as any })
     };
     setMatch(prev => ({
       ...prev,
       events: [...prev.events, newEvent].sort((a, b) => a.minute - b.minute)
     }));
-  };
+  }, []);
 
   const removeEvent = (eventId: string) => {
     setMatch(prev => ({

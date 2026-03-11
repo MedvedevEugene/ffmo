@@ -6,18 +6,31 @@ interface Props {
   players: Player[];
   teams: Team[];
   onRemoveEvent: (eventId: string) => void;
-  onAddEvent: (type: EventType, minute: number, teamId?: string, playerId?: string, description?: string, additionalPlayerId?: string, isOwnGoal?: boolean, isPenalty?: boolean) => void;
+  onAddEvent: (
+    type: EventType,
+    minute: number,
+    teamId?: string,
+    playerId?: string,
+    description?: string,
+    additionalPlayerId?: string,
+    isOwnGoal?: boolean,
+    isPenalty?: boolean,
+    yellowCardReason?: string,
+    redCardReason?: string
+  ) => void;
   getPlayerName: (playerId?: string) => string;
   getTeamName: (teamId?: string) => string;
 }
 
 const eventTypeLabels: Record<EventType, string> = {
   goal: 'Гол',
+  own_goal: 'Автогол',
+  penalty_goal: 'Пенальти (забит)',
+  missed_penalty: 'Пенальти (не забит)',
   yellow_card: 'ЖК',
   red_card: 'КК',
   substitution: 'Замена',
   injury: 'Травма',
-  penalty: 'Пенальти',
   offside: 'Офсайд',
   corner: 'Угловой',
   freekick: 'Штрафной',
@@ -44,6 +57,8 @@ const EventsTable: React.FC<Props> = ({
   const [description, setDescription] = useState<string>('');
   const [isOwnGoal, setIsOwnGoal] = useState(false);
   const [isPenalty, setIsPenalty] = useState(false);
+  const [yellowCardReason, setYellowCardReason] = useState<string>('');
+  const [redCardReason, setRedCardReason] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +70,9 @@ const EventsTable: React.FC<Props> = ({
       description || undefined,
       additionalPlayerId || undefined,
       isOwnGoal,
-      isPenalty
+      isPenalty,
+      yellowCardReason || undefined,
+      redCardReason || undefined
     );
     resetForm();
   };
@@ -69,16 +86,20 @@ const EventsTable: React.FC<Props> = ({
     setDescription('');
     setIsOwnGoal(false);
     setIsPenalty(false);
+    setYellowCardReason('');
+    setRedCardReason('');
     setShowForm(false);
   };
 
   const getEventTypeClass = (type: EventType) => {
     const classMap: Record<EventType, string> = {
       goal: 'event-type-goal',
+      own_goal: 'event-type-own_goal',
+      penalty_goal: 'event-type-penalty_goal',
+      missed_penalty: 'event-type-missed_penalty',
       yellow_card: 'event-type-yellow_card',
       red_card: 'event-type-red_card',
       substitution: 'event-type-substitution',
-      penalty: 'event-type-penalty',
       injury: 'event-type-other',
       offside: 'event-type-other',
       corner: 'event-type-other',
@@ -173,7 +194,7 @@ const EventsTable: React.FC<Props> = ({
               </div>
             )}
 
-            {(eventType === 'goal' || eventType === 'penalty') && (
+            {(eventType === 'goal' || eventType === 'penalty_goal' || eventType === 'missed_penalty' || eventType === 'own_goal') && (
               <>
                 <div className="form-group">
                   <label>
@@ -185,7 +206,7 @@ const EventsTable: React.FC<Props> = ({
                     {' '}Автогол
                   </label>
                 </div>
-                {eventType === 'goal' && (
+                {(eventType === 'goal' || eventType === 'penalty_goal' || eventType === 'missed_penalty') && (
                   <div className="form-group">
                     <label>
                       <input
@@ -209,6 +230,53 @@ const EventsTable: React.FC<Props> = ({
                 placeholder="Дополнительное описание события"
               />
             </div>
+
+            {eventType === 'yellow_card' && (
+              <div className="form-group">
+                <label>Причина ЖК</label>
+                <select
+                  value={yellowCardReason}
+                  onChange={(e) => setYellowCardReason(e.target.value)}
+                >
+                  <option value="">Выберите причину</option>
+                  <option value="spa">СПА</option>
+                  <option value="unsporting">Неспортивное поведение</option>
+                  <option value="rough_play">Грубая игра</option>
+                  <option value="systematic">Систематическое нарушение</option>
+                  <option value="delay">Задержка игры</option>
+                </select>
+              </div>
+            )}
+
+            {eventType === 'red_card' && (
+              <>
+                <div className="form-group">
+                  <label>Причина КК</label>
+                  <select
+                    value={redCardReason}
+                    onChange={(e) => setRedCardReason(e.target.value)}
+                  >
+                    <option value="">Выберите причину</option>
+                    <option value="violent_conduct">ЛЯВЗГ</option>
+                    <option value="serious_foul_play">Серьезное нарушение правил</option>
+                    <option value="aggressive_behavior">Агрессивное поведение</option>
+                    <option value="offensive">Оскорбительные выражения/действия</option>
+                    <option value="other">Другое</option>
+                  </select>
+                </div>
+                {redCardReason === 'other' && (
+                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                    <label>Описание происшедшего</label>
+                    <input
+                      type="text"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Подробное описание"
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           <div className="form-actions">
@@ -252,10 +320,14 @@ const EventsTable: React.FC<Props> = ({
                 <td>{getTeamName(event.teamId)}</td>
                 <td>
                   {getPlayerName(event.playerId)}
-                  {event.isOwnGoal && ' (автогол)'}
-                  {event.isPenalty && ' (пенальти)'}
+                  {event.type === 'own_goal' && ' (автогол)'}
+                  {(event.type === 'penalty_goal' || event.type === 'missed_penalty') && ' (пенальти)'}
                 </td>
-                <td>{event.description || ''}</td>
+                <td>
+                  {event.description || ''}
+                  {event.type === 'yellow_card' && event.yellowCardReason && ` (${event.yellowCardReason})`}
+                  {event.type === 'red_card' && event.redCardReason && ` (${event.redCardReason})`}
+                </td>
                 <td>
                   <button
                     className="btn btn-danger"

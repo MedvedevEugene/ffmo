@@ -11,7 +11,9 @@ const Statistics: React.FC<Props> = ({ match, getPlayerName }) => {
   const ownGoals = match.events.filter(e => e.type === 'goal' && e.isOwnGoal).length;
   const yellowCards = match.events.filter(e => e.type === 'yellow_card').length;
   const redCards = match.events.filter(e => e.type === 'red_card').length;
-  const penalties = match.events.filter(e => e.type === 'penalty').length;
+  const penaltyGoals = match.events.filter(e => e.type === 'penalty_goal').length;
+  const missedPenalties = match.events.filter(e => e.type === 'missed_penalty').length;
+  const totalPenalties = penaltyGoals + missedPenalties;
   const substitutions = match.events.filter(e => e.type === 'substitution').length;
 
   const homeGoals = match.events.filter(e =>
@@ -85,8 +87,18 @@ const Statistics: React.FC<Props> = ({ match, getPlayerName }) => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-value">{penalties}</div>
-          <div className="stat-label">Пенальти</div>
+          <div className="stat-value">{penaltyGoals}</div>
+          <div className="stat-label">Пенальти (забито)</div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-value">{missedPenalties}</div>
+          <div className="stat-label">Пенальти (не забито)</div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-value">{totalPenalties}</div>
+          <div className="stat-label">Пенальти (всего)</div>
         </div>
 
         <div className="stat-card">
