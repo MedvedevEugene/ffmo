@@ -254,3 +254,203 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* Team Roster Styles */
+.rosters-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.team-roster {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-roster h3 {
+  margin: 0 0 20px 0;
+  color: #1e3c72;
+  font-size: 20px;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+}
+
+.roster-section {
+  margin-bottom: 20px;
+}
+
+.roster-section h4 {
+  margin: 0 0 10px 0;
+  color: #555;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.players-grid.coaches {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.player-card {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.player-card:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.player-number {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1e3c72;
+  margin-bottom: 5px;
+}
+
+.player-name {
+  font-size: 12px;
+  color: #333;
+  line-height: 1.3;
+}
+
+.player-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 5px;
+  justify-content: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  color: white;
+}
+
+.badge-goal {
+  background-color: #28a745;
+}
+
+.badge-own_goal {
+  background-color: #6c757d;
+}
+
+.badge-penalty_goal {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.badge-missed_penalty {
+  background-color: #dc3545;
+}
+
+.badge-yellow_card {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.badge-red_card {
+  background-color: #dc3545;
+}
+
+.badge-substitution {
+  background-color: #17a2b8;
+}
+
+.badge-injury {
+  background-color: #fd7e14;
+}
+
+.badge-other {
+  background-color: #6c757d;
+}
+
+/* Event Menu Overlay */
+.event-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.event-menu {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.event-menu h4 {
+  margin: 0 0 15px 0;
+  color: #1e3c72;
+}
+
+.event-menu .form-group {
+  margin-bottom: 15px;
+}
+
+.event-menu .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+}
+
+.event-menu .form-group select,
+.event-menu .form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.event-menu .form-group input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.event-menu .form-group input[type="number"]::-webkit-outer-spin-button,
+.event-menu .form-group input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.menu-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.menu-actions button {
+  flex: 1;
+}
