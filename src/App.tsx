@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Match, ProtocolForm, MatchEvent, EventType, Team, Referee, Player } from './types';
-import ProtocolFormComponent from './components/ProtocolForm';
+import { Match, MatchEvent, EventType, Player } from './types';
 import TeamRoster from './components/TeamRoster';
 import Statistics from './components/Statistics';
 import { v4 as uuidv4 } from 'uuid';
@@ -49,82 +48,16 @@ function App() {
       players: createTeamPlayers(uuidv4())
     },
     referees: [
-      { id: uuidv4(), role: 'main', name: '' },
-      { id: uuidv4(), role: 'assistant', name: '' },
-      { id: uuidv4(), role: 'assistant', name: '' },
-      { id: uuidv4(), role: 'fourth', name: '' }
+      { id: uuidv4(), role: 'main', name: 'Главный судья' },
+      { id: uuidv4(), role: 'assistant', name: 'Ассистент 1' },
+      { id: uuidv4(), role: 'assistant', name: 'Ассистент 2' },
+      { id: uuidv4(), role: 'fourth', name: 'Резервный судья' }
     ],
     events: [],
-    stadium: '',
-    tournament: '',
-    round: ''
+    stadium: 'Стадион "Центральный"',
+    tournament: 'Чемпионат России',
+    round: '1 тур'
   });
-
-  const [formData, setFormData] = useState<ProtocolForm>({
-    tournament: '',
-    round: '',
-    date: new Date().toISOString().split('T')[0],
-    stadium: '',
-    homeTeamName: '',
-    awayTeamName: '',
-    homeTeamPlayers: '',
-    awayTeamPlayers: '',
-    mainReferee: '',
-    assistantReferee1: '',
-    assistantReferee2: '',
-    fourthReferee: ''
-  });
-
-  const handleFormChange = (field: keyof ProtocolForm, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSaveProtocol = () => {
-    const homePlayers = formData.homeTeamPlayers.split('\n').filter(p => p.trim());
-    const awayPlayers = formData.awayTeamPlayers.split('\n').filter(p => p.trim());
-
-    const homeTeam: Team = {
-      id: match.homeTeam.id,
-      name: formData.homeTeamName,
-      players: homePlayers.map((name, index) => ({
-        id: uuidv4(),
-        number: index + 1,
-        name: name.trim(),
-        teamId: match.homeTeam.id,
-        position: index < 11 ? 'starter' : 'substitute'
-      }))
-    };
-
-    const awayTeam: Team = {
-      id: match.awayTeam.id,
-      name: formData.awayTeamName,
-      players: awayPlayers.map((name, index) => ({
-        id: uuidv4(),
-        number: index + 1,
-        name: name.trim(),
-        teamId: match.awayTeam.id,
-        position: index < 11 ? 'starter' : 'substitute'
-      }))
-    };
-
-    const referees: Referee[] = [
-      { id: match.referees[0].id, role: 'main', name: formData.mainReferee },
-      { id: match.referees[1].id, role: 'assistant', name: formData.assistantReferee1 },
-      { id: match.referees[2].id, role: 'assistant', name: formData.assistantReferee2 },
-      { id: match.referees[3].id, role: 'fourth', name: formData.fourthReferee }
-    ];
-
-    setMatch(prev => ({
-      ...prev,
-      date: formData.date,
-      tournament: formData.tournament,
-      round: formData.round,
-      stadium: formData.stadium,
-      homeTeam,
-      awayTeam,
-      referees
-    }));
-  };
 
   const addEvent = useCallback((
     type: EventType,
@@ -199,11 +132,30 @@ function App() {
         <h1>Электронный протокол футбольного матча</h1>
       </div>
 
-      <ProtocolFormComponent
-        formData={formData}
-        onFormChange={handleFormChange}
-        onSave={handleSaveProtocol}
-      />
+      <div className="match-info">
+        <div className="info-row">
+          <span className="info-label">Турнир:</span>
+          <span className="info-value">{match.tournament}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Тур:</span>
+          <span className="info-value">{match.round}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Дата:</span>
+          <span className="info-value">{match.date}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Стадион:</span>
+          <span className="info-value">{match.stadium}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Судьи:</span>
+          <span className="info-value">
+            {match.referees.map(r => r.name).join(', ')}
+          </span>
+        </div>
+      </div>
 
       <div className="rosters-section">
         <TeamRoster
