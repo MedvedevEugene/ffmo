@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Match, ProtocolForm, MatchEvent, EventType, Team, Referee, Player } from './types';
 import ProtocolFormComponent from './components/ProtocolForm';
-import EventsTable from './components/EventsTable';
+import TeamRoster from './components/TeamRoster';
 import Statistics from './components/Statistics';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -129,12 +129,9 @@ function App() {
   const addEvent = useCallback((
     type: EventType,
     minute: number,
-    teamId?: string,
-    playerId?: string,
+    playerId: string,
+    teamId: string,
     description?: string,
-    additionalPlayerId?: string,
-    isOwnGoal?: boolean,
-    isPenalty?: boolean,
     yellowCardReason?: string,
     redCardReason?: string
   ) => {
@@ -145,9 +142,6 @@ function App() {
       teamId,
       playerId,
       description,
-      additionalPlayerId,
-      isOwnGoal,
-      isPenalty,
       ...(yellowCardReason && { yellowCardReason: yellowCardReason as any }),
       ...(redCardReason && { redCardReason: redCardReason as any })
     };
@@ -156,13 +150,6 @@ function App() {
       events: [...prev.events, newEvent].sort((a, b) => a.minute - b.minute)
     }));
   }, []);
-
-  const removeEvent = (eventId: string) => {
-    setMatch(prev => ({
-      ...prev,
-      events: prev.events.filter(e => e.id !== eventId)
-    }));
-  };
 
   const exportJSON = () => {
     const dataStr = JSON.stringify(match, null, 2);
@@ -182,11 +169,28 @@ function App() {
     return player ? `${player.number}. ${player.name}` : '';
   };
 
-  const getTeamName = (teamId?: string) => {
-    if (!teamId) return '';
-    if (teamId === match.homeTeam.id) return match.homeTeam.name;
-    if (teamId === match.awayTeam.id) return match.awayTeam.name;
-    return '';
+  const getPlayerEvents = useCallback((playerId: string) => {
+    return match.events.filter(e => e.playerId === playerId);
+  }, [match.events]);
+
+  const getEventTypeLabel = (type: EventType): string => {
+    const labels: Record<EventType, string> = {
+      goal: 'Гол',
+      own_goal: 'Автогол',
+      penalty_goal: 'Пенальти (забит)',
+      missed_penalty: 'Пенальти (не забит)',
+      yellow_card: 'ЖК',
+      red_card: 'КК',
+      substitution: 'Замена',
+      injury: 'Травма',
+      offside: 'Офсайд',
+      corner: 'Угловой',
+      freekick: 'Штрафной',
+      throw_in: 'Бросок от ворот',
+      goal_kick: 'Удар от ворот',
+      other: 'Другое'
+    };
+    return labels[type] || type;
   };
 
   return (
@@ -201,16 +205,21 @@ function App() {
         onSave={handleSaveProtocol}
       />
 
-      <div className="events-section">
-        <h2>События матча</h2>
-        <EventsTable
-          events={match.events}
-          players={[...match.homeTeam.players, ...match.awayTeam.players]}
-          teams={[match.homeTeam, match.awayTeam]}
-          onRemoveEvent={removeEvent}
-          getPlayerName={getPlayerName}
-          getTeamName={getTeamName}
+      <div className="rosters-section">
+        <TeamRoster
+          teamName={match.homeTeam.name}
+          players={match.homeTeam.players}
           onAddEvent={addEvent}
+          getPlayerEvents={getPlayerEvents}
+          getEventTypeLabel={getEventTypeLabel}
+        />
+
+        <TeamRoster
+          teamName={match.awayTeam.name}
+          players={match.awayTeam.players}
+          onAddEvent={addEvent}
+          getPlayerEvents={getPlayerEvents}
+          getEventTypeLabel={getEventTypeLabel}
         />
       </div>
 
