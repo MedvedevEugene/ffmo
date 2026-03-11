@@ -1,0 +1,110 @@
+.protocol-view {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.protocol-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #333;
+  padding-bottom: 1rem;
+}
+
+.protocol-header h2 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.protocol-meta {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.protocol-meta p {
+  margin: 0.25rem 0;
+}
+
+.protocol-teams {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.protocol-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.protocol-table th,
+.protocol-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.protocol-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+.protocol-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.protocol-table .player-number {
+  font-weight: bold;
+  width: 50px;
+  background-color: #f0f0f0;
+}
+
+.protocol-table .player-name {
+  text-align: left !important;
+  font-weight: 500;
+}
+
+.protocol-table .events-cell {
+  min-width: 80px;
+  vertical-align: top;
+}
+
+.protocol-table .events-cell > div {
+  padding: 0.125rem 0;
+}
+
+.protocol-view h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+@media print {
+  .protocol-view {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .protocol-table {
+    font-size: 0.8rem;
+  }
+
+  .protocol-table th,
+  .protocol-table td {
+    padding: 0.25rem;
+  }
+}

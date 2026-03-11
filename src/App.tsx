@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Match, MatchEvent, EventType, Player } from './types';
 import TeamRoster from './components/TeamRoster';
+import ProtocolView from './components/ProtocolView';
 import { v4 as uuidv4 } from 'uuid';
 
 function App() {
@@ -85,16 +86,11 @@ function App() {
     }));
   }, []);
 
-  const exportJSON = () => {
-    const dataStr = JSON.stringify(match, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `protocol-${match.id}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
+  const [showProtocol, setShowProtocol] = useState(false);
+
+  const getPlayerById = useCallback((playerId: string): Player | undefined => {
+    return [...match.homeTeam.players, ...match.awayTeam.players].find(p => p.id === playerId);
+  }, [match.homeTeam.players, match.awayTeam.players]);
 
   const getPlayerEvents = useCallback((playerId: string) => {
     return match.events.filter(e => e.playerId === playerId);
@@ -118,6 +114,17 @@ function App() {
       other: 'Другое'
     };
     return labels[type] || type;
+  };
+
+  const exportJSON = () => {
+    const dataStr = JSON.stringify(match, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `protocol-${match.id}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -170,10 +177,20 @@ function App() {
       </div>
 
       <div className="actions">
-        <button className="btn btn-primary" onClick={exportJSON}>
-          Экспорт JSON
-        </button>
+        {!showProtocol ? (
+          <button className="btn btn-primary" onClick={() => setShowProtocol(true)}>
+            Показать протокол
+          </button>
+        ) : (
+          <button className="btn btn-secondary" onClick={() => setShowProtocol(false)}>
+            Скрыть протокол
+          </button>
+        )}
       </div>
+
+      {showProtocol && (
+        <ProtocolView match={match} getPlayerById={getPlayerById} />
+      )}
     </div>
   );
 }
