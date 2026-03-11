@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { Match, MatchEvent, EventType, Player } from './types';
 import TeamRoster from './components/TeamRoster';
 import ProtocolView from './components/ProtocolView';

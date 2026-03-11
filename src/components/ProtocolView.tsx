@@ -1,31 +1,11 @@
 import React from 'react';
-import { Match, Player, MatchEvent, EventType } from '../types';
+import { Match, Player, MatchEvent } from '../types';
 import './ProtocolView.css';
 
 interface Props {
   match: Match;
   getPlayerById: (playerId: string) => Player | undefined;
 }
-
-const getEventTypeLabel = (type: EventType): string => {
-  const labels: Record<EventType, string> = {
-    goal: 'Гол',
-    own_goal: 'Автогол',
-    penalty_goal: 'Пенальти (забит)',
-    missed_penalty: 'Пенальти (не забит)',
-    yellow_card: 'ЖК',
-    red_card: 'КК',
-    substitution: 'Замена',
-    injury: 'Травма',
-    offside: 'Офсайд',
-    corner: 'Угловой',
-    freekick: 'Штрафной',
-    throw_in: 'Бросок от ворот',
-    goal_kick: 'Удар от ворот',
-    other: 'Другое'
-  };
-  return labels[type] || type;
-};
 
 const getYellowCardReasonLabel = (reason?: string): string => {
   const reasons: Record<string, string> = {
@@ -67,27 +47,6 @@ const ProtocolView: React.FC<Props> = ({ match, getPlayerById }) => {
     );
   };
 
-  const getPlayerYellowCards = (playerId: string): MatchEvent[] => {
-    return match.events.filter(e =>
-      e.playerId === playerId &&
-      e.type === 'yellow_card'
-    );
-  };
-
-  const getPlayerRedCards = (playerId: string): MatchEvent[] => {
-    return match.events.filter(e =>
-      e.playerId === playerId &&
-      e.type === 'red_card'
-    );
-  };
-
-  const getPlayerInjuries = (playerId: string): MatchEvent[] => {
-    return match.events.filter(e =>
-      e.playerId === playerId &&
-      e.type === 'injury'
-    );
-  };
-
   const renderGoalsCell = (player: Player) => {
     const goals = getPlayerGoals(player.id);
     if (goals.length === 0) return '-';
@@ -110,19 +69,6 @@ const ProtocolView: React.FC<Props> = ({ match, getPlayerById }) => {
       const substitutePlayer = s.additionalPlayerId ? getPlayerById(s.additionalPlayerId) : null;
       const substituteNumber = substitutePlayer?.number || '-';
       return <div key={s.id}>{substituteNumber} ({s.minute}')</div>;
-    });
-  };
-
-  const renderMinuteCell = (events: MatchEvent[]) => {
-    if (events.length === 0) return '-';
-    return events.map(e => `${e.minute}'`).join(', ');
-  };
-
-  const renderReasonCell = (events: MatchEvent[], getReason: (e: MatchEvent) => string) => {
-    if (events.length === 0) return '-';
-    return events.map(e => {
-      const reason = getReason(e);
-      return <div key={e.id}>{reason || `${e.minute}'`}</div>;
     });
   };
 
@@ -198,37 +144,6 @@ const ProtocolView: React.FC<Props> = ({ match, getPlayerById }) => {
               </tr>
             );
           })}
-        </tbody>
-      </table>
-
-      <table className="protocol-table">
-        <thead>
-          <tr>
-            <th>Номер</th>
-            <th>Команда</th>
-            <th>Минута</th>
-            <th>Причина</th>
-          </tr>
-        </thead>
-        <tbody>
-          {match.events
-            .filter(e => e.type === 'yellow_card')
-            .map(e => {
-              const player = getPlayerById(e.playerId || '');
-              return (
-                <tr key={e.id}>
-                  <td>{player?.number || '-'}</td>
-                  <td>{player?.teamId === match.homeTeam.id ? match.homeTeam.name : match.awayTeam.name}</td>
-                  <td>{e.minute}'</td>
-                  <td>{getYellowCardReasonLabel(e.yellowCardReason)}</td>
-                </tr>
-              );
-            })}
-          {match.events.filter(e => e.type === 'yellow_card').length === 0 && (
-            <tr>
-              <td colSpan={4} style={{ textAlign: 'center' }}>Нет предупреждений</td>
-            </tr>
-          )}
         </tbody>
       </table>
 
